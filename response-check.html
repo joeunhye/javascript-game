@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response-check</title>
+    <style>
+        #screen {
+            width: 300px;
+            height: 300px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .waiting {
+            background-color: rgb(108, 115, 255);
+        }
+
+        .ready {
+            background-color: rgb(228, 89, 89);
+        }
+
+        .now {
+            background-color: rgb(130, 189, 58);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="screen" class="waiting">클릭해서 시작하세요</div>
+    <div id="result"></div>
+
+    <script>
+        const $screen = document.querySelector('#screen')
+        const $result = document.querySelector('#result')
+        let startTime;
+        let endTime;
+        let timeoutId;
+        const records = []
+        $screen.addEventListener('click', (e) => {
+            if (e.target.classList.contains('waiting')) {
+                $screen.classList.remove('waiting');
+                $screen.classList.add('ready');
+                $screen.textContent = '초록색이 되면 클릭하세요.';
+                timeoutId = setTimeout(() => {
+                    startTime = new Date();
+                    $screen.classList.remove('ready');
+                    $screen.classList.add('now');
+                    $screen.textContent = '클릭하세요.';
+                    //첫시간 재기
+                }, Math.floor(Math.random() * 1000) + 2000)
+            } else if (e.target.classList.contains('ready')) {
+                clearTimeout(timeoutId)
+                $screen.classList.remove('ready');
+                $screen.classList.add('waiting');
+                $screen.textContent = '너무 성급하군요!';
+            } else if (e.target.classList.contains('now')) {
+                //끝 시간 재기
+                endTime = new Date();
+                const currentTime = endTime - startTime;
+                records.push(currentTime)
+                const average = (records.reduce((a, c) => a + c, 0)) / records.length;
+                $result.textContent = `현재 ${currentTime}ms, 평균 ${average}ms`;
+                startTime = null;
+                endTime = null;
+                $screen.classList.remove('now')
+                $screen.classList.add('waiting');
+                $screen.textContent = '클릭해서 시작하세요.'
+                //시간 차이 저장하기
+
+                //속도 순으로 정렬하기
+                const topFive = records.sort((a, b) => a - b).slice(0, 5);
+                topFive.forEach((top, idx) => {
+                    $result.append(document.createElement('br'),
+                        `${idx + 1}위 : ${top}ms`
+                    )
+                })
+            }
+        })
+    </script>
+</body>
+
+</html>
